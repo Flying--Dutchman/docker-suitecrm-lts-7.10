@@ -32,9 +32,6 @@ RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-di
     && docker-php-ext-install -j$(nproc) fileinfo gd imap ldap zip \
        mysqli pdo_mysql pdo_pgsql soap intl
 	   
-# setup gosu
-RUN gosu nobody true
-
 WORKDIR /tmp
 
 #Setting UP SuiteCRM
@@ -65,5 +62,6 @@ RUN mkdir conf.d \
 	
 VOLUME /var/www/html/upload
 VOLUME /var/www/html/conf.d
-
+ENTRYPOINT ["/entrypoint.sh"]
 EXPOSE 80
+CMD ["gosu","www-data","apache2-foreground"]
