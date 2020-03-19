@@ -1,7 +1,8 @@
 FROM php:7.3-apache
 ARG SUITECRM_VERSION=7.10.24
 
-COPY php.custom.ini /usr/local/etc/php/conf.d/
+COPY entrypoint.sh php.custom.ini /
+#/usr/local/etc/php/conf.d/
 
 RUN apt-get update && apt-get install -y --no-install-recommends cron \
 	git \
@@ -41,24 +42,27 @@ RUN gosu www-data curl https://codeload.github.com/salesagility/SuiteCRM/zip/v${
     && gosu www-data unzip /tmp/master.zip \
     && gosu www-data mv SuiteCRM-*/* /var/www/html \
     && rm -rf /tmp/* \
-    && chown -R www-data:www-data /var/www \
-    && chmod -R 755 /var/www \
     && echo "* * * * * cd /var/www/html; php -f cron.php > /dev/null 2>&1 " | crontab -
 
 WORKDIR /var/www/html
 
 #Setting Up config file redirect for proper use with docker volumes
 RUN mkdir conf.d \
-    && touch /var/www/html/conf.d/config.php \
-    && touch /var/www/html/conf.d/config_override.php \
-    && ln -s /var/www/html/conf.d/config.php config.php \
-    && ln -s /var/www/html/conf.d/config_override.php config_override.php \
-    && gosu www-data composer update --no-dev -n
-
-#Fix php warnings in dashboards
-#RUN cd /var/www/html \
-#    && sed -i.back s/'<?php/<?php\n\nini_set\(display_errors\,0\)\;\nerror_reporting\(E_ALL\ \^\ E_STRICT\)\;\n\n/g' /var/www/html/modules/Calls/Dashlets/MyCallsDashlet/MyCallsDashlet.php
-
+    && touch conf.d/config.php \
+    && touch conf.d/config_override.php \
+    && ln -s conf.d/config.php config.php \
+    && ln -s conf.d/config_override.php config_override.php \
+    && gosu www-data composer update --no-dev -n \
+# custom php configurations
+    && mv /php.custom.ini /usr/local/etc/php/conf.d/ \
+# entrypoint
+    && chmod +x /entrypoint.sh \
+# cleanup
+    && find /var/www/html -type d -name .git -prune -exec rm -rf {} ';' \
+    && apt remove -y git \
+    && apt autoremove -y \
+    && apt clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+	
 VOLUME /var/www/html/upload
 VOLUME /var/www/html/conf.d
 
