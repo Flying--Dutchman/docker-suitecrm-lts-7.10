@@ -41,8 +41,6 @@ RUN gosu www-data curl https://codeload.github.com/salesagility/SuiteCRM/zip/v${
     && gosu www-data unzip /tmp/master.zip \
     && gosu www-data mv SuiteCRM-*/* /var/www/html \
     && rm -rf /tmp/* \
-    && chown -R www-data:www-data /var/www \
-    && chmod -R 755 /var/www \
     && echo "* * * * * cd /var/www/html; php -f cron.php > /dev/null 2>&1 " | crontab -
 
 WORKDIR /var/www/html
@@ -54,10 +52,12 @@ RUN mkdir conf.d \
     && ln -s /var/www/html/conf.d/config.php config.php \
     && ln -s /var/www/html/conf.d/config_override.php config_override.php \
     && gosu www-data composer update --no-dev -n
-
-#Fix php warnings in dashboards
-#RUN cd /var/www/html \
-#    && sed -i.back s/'<?php/<?php\n\nini_set\(display_errors\,0\)\;\nerror_reporting\(E_ALL\ \^\ E_STRICT\)\;\n\n/g' /var/www/html/modules/Calls/Dashlets/MyCallsDashlet/MyCallsDashlet.php
+	
+#Setup SuiteCRM file permissions
+RUN chown -R www-data:www-data /var/www \
+    && chmod -R 755 /var/www \
+	&& chmod -R 775 cache custom modules themes data upload \
+	&& 775 config_override.php 2>/dev/null
 
 VOLUME /var/www/html/upload
 VOLUME /var/www/html/conf.d
