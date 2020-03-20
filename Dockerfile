@@ -47,13 +47,27 @@ RUN \
 	&& rm -rf /tmp/* \
 	&& echo "* * * * * cd /var/www/html; php -f cron.php > /dev/null 2>&1 " | crontab -
 
-#Setting Up config file redirect for proper use with docker volumes
-RUN mkdir conf.d \
-	&& touch /var/www/html/conf.d/config.php \
-	&& touch /var/www/html/conf.d/config_override.php \
-	&& ln -s /var/www/html/conf.d/config.php /var/www/html/config.php \
-	&& ln -s /var/www/html/conf.d/config_override.php /var/www/html/config_override.php \
+#Setting Up file redirect for proper use with docker volumes
+RUN mkdir /var/www/html/docker.d \
+# Log file
+	&& mkdir /var/www/html/docker.d/logs \
+	&& touch /var/www/html/docker.d/logs/suitecrm.log \
+	&& ln -s /var/www/html/docker.d/logs/suitecrm.log /var/www/html/suitecrm.log \
+# Config
+	&& mkdir /var/www/html/docker.d/conf.d \
+	&& touch /var/www/html/docker.d/conf.d/config.php \
+	&& touch /var/www/html/docker.d/conf.d/config_override.php \
+	&& ln -s /var/www/html/docker.d/conf.d/config.php /var/www/html/config.php \
+	&& ln -s /var/www/html/docker.d/conf.d/config_override.php /var/www/html/config_override.php \
+# Upload folder
+	&& mkdir /var/www/html/docker.d/upload \
+	&& ln -s /var/www/html/docker.d/upload /var/www/html/upload \
+# Custom folder
+	&& mkdir /var/www/html/docker.d/upload \
+	&& ln -s /var/www/html/docker.d/custom /var/www/html/custom \
+# Set folder rights
 	&& chown -hR www-data:www-data /var/www/html \
+# Update composer
 	&& gosu www-data composer update --no-dev -n \
 # custom php configurations
 	&& mv /php.custom.ini /usr/local/etc/php/conf.d/ \
@@ -62,9 +76,12 @@ RUN mkdir conf.d \
 	&& chmod 777 /entrypoint.sh \
 # Change access righs to conf, logs, bin from root to www-data
 	&& chown -hR www-data:www-data /etc/apache2/ 
-	
-VOLUME /var/www/html/upload
-VOLUME /var/www/html/conf.d
+
+# Define volumes
+VOLUME /var/www/html/docker.d
+VOLUME /var/www/html/docker.d/upload
+VOLUME /var/www/html/docker.d/conf.d
+VOLUME /var/www/html/docker.d/log
 EXPOSE 8080
 HEALTHCHECK --interval=60s --timeout=30s --start-period=20s CMD curl --fail http://localhost:8080/ || exit 1
-CMD ["gosu","www-data","apache2-fore
+CMD ["gosu","www-data","apache2-foreground"]
