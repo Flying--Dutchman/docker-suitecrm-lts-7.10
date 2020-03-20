@@ -56,6 +56,11 @@ RUN mkdir conf.d \
 # entrypoint
     && dos2unix /entrypoint.sh \
     && chmod +x /entrypoint.sh \
+# Change access righs to conf, logs, bin from root to www-data
+    && chown -hR www-data:www-data /usr/local/apache2/ \
+# setcap to bind to privileged ports as non-root
+    && setcap 'cap_net_bind_service=+ep' /usr/local/apache2/bin/httpd \
+    && getcap /usr/local/apache2/bin/httpd \
 # cleanup
     && find /var/www/html -type d -name .git -prune -exec rm -rf {} ';' \
     && apt remove -y git \
@@ -66,4 +71,6 @@ VOLUME /var/www/html/upload
 VOLUME /var/www/html/conf.d
 ENTRYPOINT ["/entrypoint.sh"]
 EXPOSE 80
+HEALTHCHECK --interval=60s --timeout=30s CMD nc -zv localhost 80 || exit 1
+USER www-data
 CMD ["gosu","www-data","apache2-foreground"]
