@@ -72,7 +72,6 @@ RUN mkdir conf.d \
 	
 VOLUME /var/www/html/upload
 VOLUME /var/www/html/conf.d
-EXPOSE 80
-HEALTHCHECK --interval=60s --timeout=30s CMD nc -zv localhost 80 || exit 1
-USER www-data
+EXPOSE 8080
+HEALTHCHECK --interval=60s --timeout=30s CMD nc -zv localhost 8080 || exit 1
 CMD ["gosu","www-data","apache2-foreground"]
