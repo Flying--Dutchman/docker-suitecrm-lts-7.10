@@ -75,4 +75,4 @@ VOLUME /var/www/html/conf.d
 EXPOSE 80
 HEALTHCHECK --interval=60s --timeout=30s CMD nc -zv localhost 80 || exit 1
 USER www-data
-CMD ["gosu","www-data","apache2-foreground]
+CMD ["gosu","www-data","apache2-foreground"]
