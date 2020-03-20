@@ -22,10 +22,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends cron \
 	unzip \
 	zlib1g-dev \
 	gosu \
+	libcap2-bin \
 	&& curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
 	&& apt-get clean \
 	&& rm -rf /var/lib/apt/lists/*
-	
+
 RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
 	&& docker-php-ext-configure intl \
     && docker-php-ext-configure imap --with-kerberos --with-imap-ssl \
@@ -50,6 +51,7 @@ RUN mkdir conf.d \
     && touch conf.d/config_override.php \
     && ln -s conf.d/config.php config.php \
     && ln -s conf.d/config_override.php config_override.php \
+	&& chown -hR www-data:www-data /var/www/html \
     && gosu www-data composer update --no-dev -n \
 # custom php configurations
     && mv /php.custom.ini /usr/local/etc/php/conf.d/ \
@@ -57,10 +59,10 @@ RUN mkdir conf.d \
     && dos2unix /entrypoint.sh \
     && chmod +x /entrypoint.sh \
 # Change access righs to conf, logs, bin from root to www-data
-    && chown -hR www-data:www-data /usr/local/apache2/ \
+    && chown -hR www-data:www-data /etc/apache2/ \
 # setcap to bind to privileged ports as non-root
-    && setcap 'cap_net_bind_service=+ep' /usr/local/apache2/bin/httpd \
-    && getcap /usr/local/apache2/bin/httpd \
+    && setcap 'cap_net_bind_service=+ep' /usr/sbin/apache2 \
+    && getcap /usr/sbin/apache2 \
 # cleanup
     && find /var/www/html -type d -name .git -prune -exec rm -rf {} ';' \
     && apt remove -y git \
@@ -69,8 +71,8 @@ RUN mkdir conf.d \
 	
 VOLUME /var/www/html/upload
 VOLUME /var/www/html/conf.d
-ENTRYPOINT ["/entrypoint.sh"]
+#ENTRYPOINT ["bash", "/entrypoint.sh"]
 EXPOSE 80
 HEALTHCHECK --interval=60s --timeout=30s CMD nc -zv localhost 80 || exit 1
 USER www-data
-CMD ["gosu","www-data","apache2-foreground"]
+CMD ["gosu","www-data","apache2-foreground] 
