@@ -6,6 +6,7 @@ COPY entrypoint.sh php.custom.ini /
 
 RUN apt-get update && apt-get install -y --no-install-recommends cron \
 	git \
+	dos2unix \
 	libc-client-dev \
 	libcurl4-openssl-dev \
     libfreetype6-dev \
@@ -53,8 +54,8 @@ RUN mkdir conf.d \
 # custom php configurations
     && mv /php.custom.ini /usr/local/etc/php/conf.d/ \
 # entrypoint
-    && chmod +x /entrypoint.sh \
     && dos2unix /entrypoint.sh \
+    && chmod +x /entrypoint.sh \
 # cleanup
     && find /var/www/html -type d -name .git -prune -exec rm -rf {} ';' \
     && apt remove -y git \
