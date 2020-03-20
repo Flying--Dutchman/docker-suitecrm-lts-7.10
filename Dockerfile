@@ -3,8 +3,10 @@ ARG SUITECRM_VERSION=7.10.24
 
 COPY entrypoint.sh php.custom.ini /
 
-RUN apt-get update && apt-get install -y --no-install-recommends cron \
-	git \
+RUN \
+# Install packages
+    apt-get update && apt-get install -y --no-install-recommends \
+    cron \
 	dos2unix \
 	libc-client-dev \
 	libcurl4-openssl-dev \
@@ -21,40 +23,36 @@ RUN apt-get update && apt-get install -y --no-install-recommends cron \
 	unzip \
 	zlib1g-dev \
 	gosu \
+# Install composer
 	&& curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
-	&& apt-get clean \
+	&& apt autoremove -y \
+	&& apt clean \
 	&& rm -rf /var/lib/apt/lists/* \
 # run on non-privilege ports
 	&& sed -i 's/Listen 80$/Listen 8080/g' /etc/apache2/ports.conf \
 	&& sed -i 's/Listen 443$/Listen 8443/g' /etc/apache2/ports.conf \
 	&& rm -rf /var/log/apache2/* \
 	&& touch /var/log/apache2/access.log /var/log/apache2/error.log /var/log/apache2/other_vhosts_access.log \
-	&& chown -R www-data:www-data /var/log/apache2 
-
-RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
+	&& chown -R www-data:www-data /var/log/apache2 \
+# PHP extensions
+    && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
 	&& docker-php-ext-configure intl \
 	&& docker-php-ext-configure imap --with-kerberos --with-imap-ssl \
 	&& docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu/ \
-	&& docker-php-ext-install -j$(nproc) fileinfo gd imap ldap zip \
-		mysqli pdo_mysql pdo_pgsql soap intl
-
-WORKDIR /tmp
-
-#Setting UP SuiteCRM
-RUN gosu www-data curl https://codeload.github.com/salesagility/SuiteCRM/zip/v${SUITECRM_VERSION} -o /tmp/master.zip \
-	&& gosu www-data unzip /tmp/master.zip \
-	&& gosu www-data mv SuiteCRM-*/* /var/www/html \
+	&& docker-php-ext-install -j$(nproc) fileinfo gd imap ldap zip mysqli pdo_mysql pdo_pgsql soap intl \
+#Setting up SuiteCRM
+    && gosu www-data curl https://codeload.github.com/salesagility/SuiteCRM/zip/v${SUITECRM_VERSION} -o /tmp/master.zip \
+	&& gosu www-data unzip /tmp/master.zip -d /tmp \
+	&& gosu www-data mv /tmp/SuiteCRM-*/* /var/www/html \
 	&& rm -rf /tmp/* \
 	&& echo "* * * * * cd /var/www/html; php -f cron.php > /dev/null 2>&1 " | crontab -
 
-WORKDIR /var/www/html
-
 #Setting Up config file redirect for proper use with docker volumes
 RUN mkdir conf.d \
-	&& touch conf.d/config.php \
-	&& touch conf.d/config_override.php \
-	&& ln -s conf.d/config.php config.php \
-	&& ln -s conf.d/config_override.php config_override.php \
+	&& touch /var/www/html/conf.d/config.php \
+	&& touch /var/www/html/conf.d/config_override.php \
+	&& ln -s /var/www/html/conf.d/config.php /var/www/html/config.php \
+	&& ln -s /var/www/html/conf.d/config_override.php /var/www/html/config_override.php \
 	&& chown -hR www-data:www-data /var/www/html \
 	&& gosu www-data composer update --no-dev -n \
 # custom php configurations
@@ -63,15 +61,10 @@ RUN mkdir conf.d \
 	&& dos2unix /entrypoint.sh \
 	&& chmod 777 /entrypoint.sh \
 # Change access righs to conf, logs, bin from root to www-data
-	&& chown -hR www-data:www-data /etc/apache2/ \
-# cleanup
-	&& find /var/www/html -type d -name .git -prune -exec rm -rf {} ';' \
-	&& apt remove -y git \
-	&& apt autoremove -y \
-	&& apt clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+	&& chown -hR www-data:www-data /etc/apache2/ 
 	
 VOLUME /var/www/html/upload
 VOLUME /var/www/html/conf.d
 EXPOSE 8080
-HEALTHCHECK --interval=60s --timeout=30s CMD nc -zv localhost 8080 || exit 1
-CMD ["gosu","www-data","apache2-foreground"]
+HEALTHCHECK --interval=60s --timeout=30s --start-period=20s CMD curl --fail http://localhost:8080/ || exit 1
+CMD ["gosu","www-data","apache2-fore
