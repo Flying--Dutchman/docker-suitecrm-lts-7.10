@@ -54,6 +54,7 @@ RUN mkdir conf.d \
     && mv /php.custom.ini /usr/local/etc/php/conf.d/ \
 # entrypoint
     && chmod +x /entrypoint.sh \
+    && dos2unix /entrypoint.sh \
 # cleanup
     && find /var/www/html -type d -name .git -prune -exec rm -rf {} ';' \
     && apt remove -y git \
