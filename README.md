@@ -12,7 +12,8 @@ A dockerized version of SuiteCRM LTS.
 It exposes multiple volumes for easy access.
 
 All volume folders in one: /var/www/html/docker.d  
-SuiteCRM upload folder: /var/www/html/docker.d/upload  
+SuiteCRM upload folder: /var/www/html/upload  
 SuiteCRM configuration: /var/www/html/docker.d/conf.d  
 SuiteCRM logfile: /var/www/html/docker.d/log   
-SuiteCRM custom folder: /var/www/html/docker.d/custom  
+SuiteCRM custom folder: /var/www/html/custom  
+Entire SuiteCRM folder (if needed): /var/www/html/
