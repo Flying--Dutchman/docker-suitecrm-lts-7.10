@@ -24,5 +24,4 @@ chmod -R 775 cache custom modules themes data upload
 echo "Set chmod of config_override.php to 775"
 chmod 775 config_override.php 2>/dev/null
 
-#exec gosu www-data "$@"
-exec "$@"
+exec gosu www-data apache2-foreground
