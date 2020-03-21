@@ -63,7 +63,7 @@ RUN mkdir /var/www/html/docker.d \
 	&& mkdir /var/www/html/docker.d/upload \
 	&& ln -s /var/www/html/docker.d/upload /var/www/html/upload \
 # Custom folder
-	&& mkdir /var/www/html/docker.d/upload \
+	&& mkdir /var/www/html/docker.d/custom \
 	&& ln -s /var/www/html/docker.d/custom /var/www/html/custom \
 # Set folder rights
 	&& chown -hR www-data:www-data /var/www/html \
@@ -82,6 +82,12 @@ VOLUME /var/www/html/docker.d
 VOLUME /var/www/html/docker.d/upload
 VOLUME /var/www/html/docker.d/conf.d
 VOLUME /var/www/html/docker.d/log
+VOLUME /var/www/html/docker.d/custom
+
+# Define ports
 EXPOSE 8080
+
+# Run healtcheck
 HEALTHCHECK --interval=60s --timeout=30s --start-period=20s CMD curl --fail http://localhost:8080/ || exit 1
+
 CMD ["gosu","www-data","apache2-foreground"]
