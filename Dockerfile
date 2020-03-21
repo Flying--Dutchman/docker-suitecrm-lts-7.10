@@ -61,7 +61,7 @@ RUN \
 	&& ln -s /var/www/docker.d/conf.d/config_override.php /var/www/html/config_override.php \
 # htaccess
 	&& touch /var/www/docker.d/conf.d/.htpasswd \
-	&& ln -s /var/www/docker.d/conf.d/.htpasswd /var/www/html/.htpasswd \
+	&& ln -s /var/www/docker.d/conf.d/.htpasswd /var/www/.htpasswd \
 # htpasswd
 	&& touch /var/www/docker.d/conf.d/.htaccess \
 	&& ln -s /var/www/docker.d/conf.d/.htaccess /var/www/html/.htaccess \
