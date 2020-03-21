@@ -78,10 +78,10 @@ RUN \
 	&& chown -hR www-data:www-data /etc/apache2/ 
 
 # Define volumes
-VOLUME /var/www/html/docker.d
+VOLUME /var/www/docker.d
 VOLUME /var/www/html/upload
-VOLUME /var/www/html/docker.d/conf.d
-VOLUME /var/www/html/docker.d/logs
+VOLUME /var/www/docker.d/conf.d
+VOLUME /var/www/docker.d/logs
 VOLUME /var/www/html/custom
 # Entire SuiteCRM folder (if needed)
 VOLUME /var/www/html/
