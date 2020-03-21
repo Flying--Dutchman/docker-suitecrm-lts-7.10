@@ -75,7 +75,7 @@ RUN \
 VOLUME /var/www/html/docker.d
 VOLUME /var/www/html/upload
 VOLUME /var/www/html/docker.d/conf.d
-VOLUME /var/www/html/docker.d/log
+VOLUME /var/www/html/docker.d/logs
 VOLUME /var/www/html/custom
 # Entire SuiteCRM folder (if needed)
 VOLUME /var/www/html/
