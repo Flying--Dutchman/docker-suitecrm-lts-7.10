@@ -48,25 +48,25 @@ RUN \
 	&& rm -rf /tmp/* \
 	&& echo "* * * * * cd /var/www/html; php -f cron.php > /dev/null 2>&1 " | crontab - \
 # Setting up file redirection for docker volumes
- 	&& mkdir /var/www/html/docker.d \
+ 	&& mkdir /var/www/docker.d \
 # Log file
-	&& mkdir /var/www/html/docker.d/logs \
-	&& touch /var/www/html/docker.d/logs/suitecrm.log \
-	&& ln -s /var/www/html/docker.d/logs/suitecrm.log /var/www/html/suitecrm.log \
+	&& mkdir /var/www/docker.d/logs \
+	&& touch /var/www/docker.d/logs/suitecrm.log \
+	&& ln -s /var/www/docker.d/logs/suitecrm.log /var/www/html/suitecrm.log \
 # Config
-	&& mkdir /var/www/html/docker.d/conf.d \
-	&& touch /var/www/html/docker.d/conf.d/config.php \
-	&& touch /var/www/html/docker.d/conf.d/config_override.php \
-	&& ln -s /var/www/html/docker.d/conf.d/config.php /var/www/html/config.php \
-	&& ln -s /var/www/html/docker.d/conf.d/config_override.php /var/www/html/config_override.php \
+	&& mkdir /var/www/docker.d/conf.d \
+	&& touch /var/www/docker.d/conf.d/config.php \
+	&& touch /var/www/docker.d/conf.d/config_override.php \
+	&& ln -s /var/www/docker.d/conf.d/config.php /var/www/html/config.php \
+	&& ln -s /var/www/docker.d/conf.d/config_override.php /var/www/html/config_override.php \
 # htaccess
-	&& touch /var/www/html/docker.d/conf.d/.htpasswd \
-	&& ln -s /var/www/html/docker.d/conf.d/.htpasswd /var/www/html/.htpasswd \
+	&& touch /var/www/docker.d/conf.d/.htpasswd \
+	&& ln -s /var/www/docker.d/conf.d/.htpasswd /var/www/html/.htpasswd \
 # htpasswd
-	&& touch /var/www/html/docker.d/conf.d/.htaccess \
-	&& ln -s /var/www/html/docker.d/conf.d/.htaccess /var/www/html/.htaccess \
+	&& touch /var/www/docker.d/conf.d/.htaccess \
+	&& ln -s /var/www/docker.d/conf.d/.htaccess /var/www/html/.htaccess \
 # Set folder rights
-	&& chown -hR www-data:www-data /var/www/html \
+	&& chown -hR www-data:www-data /var/www/ \
 # Update composer
 	&& gosu www-data composer update --no-dev -n \
 # custom php configurations
