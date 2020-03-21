@@ -87,4 +87,3 @@ EXPOSE 8080
 HEALTHCHECK --interval=60s --timeout=30s --start-period=20s CMD curl --fail http://localhost:8080/ || exit 1
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["gosu","www-data","apache2-foreground"]
