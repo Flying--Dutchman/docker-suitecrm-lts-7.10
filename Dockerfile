@@ -53,6 +53,12 @@ RUN \
 	&& mkdir /var/www/html/docker.d/logs \
 	&& touch /var/www/html/docker.d/logs/suitecrm.log \
 	&& ln -s /var/www/html/docker.d/logs/suitecrm.log /var/www/html/suitecrm.log \
+# htaccess
+	&& touch /var/www/html/docker.d/conf.d/.htpasswd \
+	&& ln -s /var/www/html/docker.d/conf.d/.htpasswd /var/www/html/.htpasswd \
+# htpasswd
+	&& touch /var/www/html/docker.d/conf.d/.htaccess \
+	&& ln -s /var/www/html/docker.d/conf.d/.htaccess /var/www/html/.htaccess \
 # Config
 	&& mkdir /var/www/html/docker.d/conf.d \
 	&& touch /var/www/html/docker.d/conf.d/config.php \
