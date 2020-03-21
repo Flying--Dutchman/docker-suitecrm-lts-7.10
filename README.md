@@ -1,6 +1,4 @@
-# docker-suitecrm-lts-7.10
-
-WIP - Not stable!
+# SuiteCRM LTS 7.10 - Docker
 
 A dockerized version of SuiteCRM LTS. 
 
