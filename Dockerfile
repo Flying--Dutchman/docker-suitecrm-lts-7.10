@@ -25,10 +25,11 @@ RUN \
 	gosu \
 # Install composer
 	&& curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
+# Cleanup APT
 	&& apt autoremove -y \
 	&& apt clean \
 	&& rm -rf /var/lib/apt/lists/* \
-# run on non-privilege ports
+# Listen on non privilaged ports
 	&& sed -i 's/Listen 80$/Listen 8080/g' /etc/apache2/ports.conf \
 	&& sed -i 's/Listen 443$/Listen 8443/g' /etc/apache2/ports.conf \
 	&& rm -rf /var/log/apache2/* \
@@ -40,15 +41,14 @@ RUN \
 	&& docker-php-ext-configure imap --with-kerberos --with-imap-ssl \
 	&& docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu/ \
 	&& docker-php-ext-install -j$(nproc) fileinfo gd imap ldap zip mysqli pdo_mysql pdo_pgsql soap intl \
-#Setting up SuiteCRM
+# Setting up SuiteCRM
     && gosu www-data curl https://codeload.github.com/salesagility/SuiteCRM/zip/v${SUITECRM_VERSION} -o /tmp/master.zip \
 	&& gosu www-data unzip /tmp/master.zip -d /tmp \
 	&& gosu www-data mv /tmp/SuiteCRM-*/* /var/www/html \
 	&& rm -rf /tmp/* \
-	&& echo "* * * * * cd /var/www/html; php -f cron.php > /dev/null 2>&1 " | crontab -
-
-#Setting Up file redirect for proper use with docker volumes
-RUN mkdir /var/www/html/docker.d \
+	&& echo "* * * * * cd /var/www/html; php -f cron.php > /dev/null 2>&1 " | crontab - \
+# Setting up file redirection for docker volumes
+ 	&& mkdir /var/www/html/docker.d \
 # Log file
 	&& mkdir /var/www/html/docker.d/logs \
 	&& touch /var/www/html/docker.d/logs/suitecrm.log \
@@ -59,12 +59,6 @@ RUN mkdir /var/www/html/docker.d \
 	&& touch /var/www/html/docker.d/conf.d/config_override.php \
 	&& ln -s /var/www/html/docker.d/conf.d/config.php /var/www/html/config.php \
 	&& ln -s /var/www/html/docker.d/conf.d/config_override.php /var/www/html/config_override.php \
-# Upload folder
-	&& mkdir /var/www/html/docker.d/upload \
-	&& ln -s /var/www/html/docker.d/upload /var/www/html/upload \
-# Custom folder
-	&& mkdir /var/www/html/docker.d/custom \
-	&& ln -s /var/www/html/docker.d/custom /var/www/html/custom \
 # Set folder rights
 	&& chown -hR www-data:www-data /var/www/html \
 # Update composer
@@ -79,10 +73,12 @@ RUN mkdir /var/www/html/docker.d \
 
 # Define volumes
 VOLUME /var/www/html/docker.d
-VOLUME /var/www/html/docker.d/upload
+VOLUME /var/www/html/upload
 VOLUME /var/www/html/docker.d/conf.d
 VOLUME /var/www/html/docker.d/log
-VOLUME /var/www/html/docker.d/custom
+VOLUME /var/www/html/custom
+# Entire SuiteCRM folder (if needed)
+VOLUME /var/www/html/
 
 # Define ports
 EXPOSE 8080
@@ -90,4 +86,5 @@ EXPOSE 8080
 # Run healtcheck
 HEALTHCHECK --interval=60s --timeout=30s --start-period=20s CMD curl --fail http://localhost:8080/ || exit 1
 
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["gosu","www-data","apache2-foreground"]
