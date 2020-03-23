@@ -48,7 +48,7 @@ RUN \
 	&& rm -rf /tmp/* \
 	&& echo "* * * * * cd /var/www/html; php -f cron.php > /dev/null 2>&1 " | crontab - \
 # Setting up file redirection for docker volumes
- 	&& mkdir /var/www/docker.d \
+        && mkdir /var/www/docker.d \
 # Log file
 	&& mkdir /var/www/docker.d/logs \
 	&& touch /var/www/docker.d/logs/suitecrm.log \
@@ -59,14 +59,18 @@ RUN \
 	&& touch /var/www/docker.d/conf.d/config_override.php \
 	&& ln -s /var/www/docker.d/conf.d/config.php /var/www/html/config.php \
 	&& ln -s /var/www/docker.d/conf.d/config_override.php /var/www/html/config_override.php \
-# htaccess
+# htpasswd
 	&& touch /var/www/docker.d/conf.d/.htpasswd \
 	&& ln -s /var/www/docker.d/conf.d/.htpasswd /var/www/.htpasswd \
-# htpasswd
+# htaccess
 	&& touch /var/www/docker.d/conf.d/.htaccess \
 	&& ln -s /var/www/docker.d/conf.d/.htaccess /var/www/html/.htaccess \
 # Set folder rights
-	&& chown -hR www-data:www-data /var/www/ \
+        && chown -hR www-data:www-data /var/www/ \
+# Sessions folder with Sticky Bit
+        && mkdir /var/www/docker.d/sessions \
+        && chown -R nobody:nogroup /var/www/docker.d/sessions \
+        && chmod 1777 /var/www/docker.d/sessions \
 # Update composer
 	&& gosu www-data composer update --no-dev -n \
 # custom php configurations

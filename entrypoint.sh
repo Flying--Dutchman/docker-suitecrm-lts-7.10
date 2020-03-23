@@ -10,16 +10,19 @@ echo "Set permissions"
 cd /var/www/html
 
 echo "Create cache folder if needed..."
-mkdir -p cache 
+mkdir -p cache
 
-echo "Set owner of /var/www to www-data..."
-chown -R www-data:www-data /var/www 
+echo "Set owner of /var/www/html to www-data..."
+chown -R www-data:www-data /var/www/
+chown -R nobody:nogroup /var/www/docker.d/sessions
+chmod 1777 /var/www/docker.d/sessions
 
-echo "Set chmod of /var/www recursivly to 755"
-chmod -R 755 /var/www 
+
+echo "Set chmod of /var/www/html recursivly to 755"
+chmod -R 755 /var/www/html
 
 echo "Set chmod of cache custom modules themes data upload recursivly to 775"
-chmod -R 775 cache custom modules themes data upload 
+chmod -R 775 cache custom modules themes data upload
 
 echo "Set chmod of config_override.php to 775"
 chmod 775 config_override.php 2>/dev/null
