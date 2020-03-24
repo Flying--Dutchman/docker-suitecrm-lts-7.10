@@ -13,10 +13,7 @@ echo "Create cache folder if needed..."
 mkdir -p cache
 
 echo "Set owner of /var/www/html to www-data..."
-chown -R www-data:www-data /var/www/
-chown -R nobody:nogroup /var/www/docker.d/sessions
-chmod 1777 /var/www/docker.d/sessions
-
+ychown -R www-data:www-data /var/www/
 
 echo "Set chmod of /var/www/html recursivly to 755"
 chmod -R 755 /var/www/html

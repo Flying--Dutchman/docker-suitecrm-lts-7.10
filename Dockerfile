@@ -65,12 +65,10 @@ RUN \
 # htaccess
 	&& touch /var/www/docker.d/conf.d/.htaccess \
 	&& ln -s /var/www/docker.d/conf.d/.htaccess /var/www/html/.htaccess \
+# Sessions folder
+        && mkdir /var/www/docker.d/sessions \
 # Set folder rights
         && chown -hR www-data:www-data /var/www/ \
-# Sessions folder with Sticky Bit
-        && mkdir /var/www/docker.d/sessions \
-        && chown -R nobody:nogroup /var/www/docker.d/sessions \
-        && chmod 1777 /var/www/docker.d/sessions \
 # Update composer
 	&& gosu www-data composer update --no-dev -n \
 # custom php configurations
