@@ -24,7 +24,7 @@ RUN \
 	zlib1g-dev \
 	gosu \
 # Install composer
-	&& curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
+	&& curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer --version=1.10.20 \
 # Cleanup APT
 	&& apt autoremove -y \
 	&& apt clean \
