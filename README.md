@@ -1,6 +1,10 @@
 # SuiteCRM LTS 7.10 - Docker
 
-A dockerized version of SuiteCRM LTS. 
+A dockerized version of SuiteCRM LTS. <br>
+
+An extended version, which includes MariaDB, can be found here: <br>
+DockerHub: https://hub.docker.com/r/dutches/suitecrm-lts-standalone <br>
+Github: https://github.com/Flying--Dutchman/docker-suitecrm-lts-7.10-mariadb <br>
 
 # Ports
 8080 - SuiteCRM 
